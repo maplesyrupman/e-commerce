@@ -48,7 +48,7 @@ router.get('/:id', (req, res) => {
     if (productData) {
       res.status(200).json(productData)  
     } else {
-      res.status(404).json({message: 'no product with that id exists'})
+      res.status(404).json({message: `could not find product with id ${req.params.id}`})
     }
   })
   .catch(err => {
@@ -140,7 +140,7 @@ router.delete('/:id', (req, res) => {
     if (productData) {
       res.status(200).json(productData)
     } else {
-      res.status(404).json({message: 'no product with that id exists'})
+      res.status(404).json({message: `could not find product with id ${req.params.id}`})
     }
   })
   .catch(err => res.status(400).json(err))
