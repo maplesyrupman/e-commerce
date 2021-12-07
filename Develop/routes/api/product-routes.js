@@ -6,6 +6,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // get all products
 router.get('/', (req, res) => {
   Product.findAll({
+    attributes: ['id', 'product_name', 'price', 'stock'],
     include: [
       {
         model: Category,
@@ -13,18 +14,46 @@ router.get('/', (req, res) => {
       },
       {
         model: Tag,
-        as: 'tags'
+        as: 'tags',
+        attributes: ['tag_name'],
+        through: {attributes: []}
       }
     ]
   })
-  .then(dbProductData => res.status(200).json(dbProductData))
+  .then(productData => res.status(200).json(productData))
   .catch(err => res.status(400).json(err))
 });
 
 // get one product
 router.get('/:id', (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+  Product.findOne({
+    where: {
+      id: req.params.id
+    },
+    attributes: ['id', 'product_name', 'price', 'stock'],
+    include: [
+      {
+        model: Category,
+        attributes: ['category_name']
+      },
+      {
+        model: Tag,
+        as: 'tags',
+        attributes: ['tag_name'],
+        through: {attributes: []}
+      }
+    ]
+  })
+  .then(productData => {
+    if (productData) {
+      res.status(200).json(productData)  
+    } else {
+      res.status(404).json({message: 'no product with that id exists'})
+    }
+  })
+  .catch(err => {
+    res.status(400).json(err)
+  })
 });
 
 // create new product
@@ -102,7 +131,19 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+  Product.destroy({
+    where: {
+      id: req.params.id
+    }
+  })
+  .then(productData => {
+    if (productData) {
+      res.status(200).json(productData)
+    } else {
+      res.status(404).json({message: 'no product with that id exists'})
+    }
+  })
+  .catch(err => res.status(400).json(err))
 });
 
 module.exports = router;
